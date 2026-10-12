@@ -5,19 +5,21 @@ It's a remake of the original Flutter app ([michaelodafe/hangman_pidgin](https:/
 
 - Plain HTML/CSS/JS, no build step. Phone-first (375 × 812, touch), works offline from the SDK as a guest.
 - Vatar SDK: player name, leaderboard (`submitScore` / `leaderboard`), `onPause` / `onResume`, and one product, a **Hint Pack** (`hints_5`).
-- A small server (Netlify Functions) checks every purchase with Vatar's API, gives the hints once per purchase, marks it delivered, and keeps each player's hint balance (Netlify Blobs).
+- A small server (Vercel Functions) checks every purchase with Vatar's API, gives the hints once per purchase, marks it delivered, and keeps each player's hint balance (Upstash Redis).
 
 ## Layout
 
 ```
 public/                 the game (what gets hosted)
   index.html  style.css  game.js  words.js  config.js  fonts/  icon-192.png
-netlify/functions/      the server
-  claim.mjs             POST /api/claim         { session, purchaseId } → { hints, granted }
-  hints.mjs             POST /api/hints(/use)   { session } → { hints }
-  webhook.mjs           POST /api/vatar-webhook (purchase.paid, signature checked)
-netlify/lib/vatar.mjs   Vatar API calls, purchase delivery, hint balances
-netlify.toml            publish dir + the frame-ancestors header Vatar requires
+api/                    the server (Vercel Functions)
+  claim.js              POST /api/claim         { session, purchaseId } → { hints, granted }
+  hints/index.js        POST /api/hints         { session } → { hints }
+  hints/use.js          POST /api/hints/use     { session } → { hints }
+  vatar-webhook.js      POST /api/vatar-webhook (purchase.paid, signature checked)
+lib/vatar.js            Vatar API calls, purchase delivery, hint balances
+vercel.json             output dir + the frame-ancestors header Vatar requires
+test/                   server tests (npm test) against a fake Vatar API
 store/                  icon, screenshots and listing text for the dashboard
 dev/                    local test tools (never deployed)
 ```
@@ -33,27 +35,30 @@ python3 dev/serve.py
 
 `./dev/shots.sh` re-renders the store screenshots (needs Chrome and the dev server running).
 
-## Deploy (Netlify: game + server + headers in one place)
+## Deploy on Vercel (game + server + header in one place)
 
-1. Create the site from this repo (`netlify init`, or "Import from Git" in Netlify). Publish dir and functions come from `netlify.toml`.
-2. In the site's environment variables, set:
-   - `VATAR_SECRET` — your `vtr_test_…` secret (later `vtr_live_…`)
-   - `VATAR_WEBHOOK_SECRET` — your `vtr_whsec_test_…` secret (later `vtr_whsec_live_…`)
-3. Redeploy. The game is at `https://<site>.netlify.app/`, the webhook at `https://<site>.netlify.app/api/vatar-webhook`.
+1. Sign in at https://vercel.com → **Add New… → Project** → import the GitHub repo `michaelodafe/hangman-pidgin-web`. Leave the settings as they are (`vercel.json` sets everything) and **Deploy**. Every push to `main` redeploys.
+2. In the project: **Storage → Create Database → Upstash for Redis** (free plan) → connect it to the project. That adds `KV_REST_API_URL` and `KV_REST_API_TOKEN` for you.
+3. **Settings → Environment Variables**, add:
+   - `VATAR_SECRET`: your `vtr_test_…` secret (later `vtr_live_…`)
+   - `VATAR_WEBHOOK_SECRET`: your `vtr_whsec_test_…` secret (later `vtr_whsec_live_…`)
+4. **Deployments → Redeploy** so the variables take effect. The game is at `https://<project>.vercel.app/`, the webhook at `https://<project>.vercel.app/api/vatar-webhook`.
 
-Netlify sends the required header for every page:
+(Or from a terminal: `npx vercel login`, then `npx vercel --prod` in this folder.)
+
+Vercel sends the required header for every page:
 `Content-Security-Policy: frame-ancestors https://lagoslife.app https://www.lagoslife.app https://naijalife.app https://www.naijalife.app https://lagoslife.eliysites.com`
 
-GitHub Pages also serves `public/` from the `gh-pages` branch (update it with `git subtree push --prefix public origin gh-pages`), but Pages can't run the server or send that header, so the shop is turned off there. Use the Netlify address for Lagos Life. If you ever host the game somewhere other than the server, set `api` in `public/config.js` to the server's full URL.
+GitHub Pages also serves `public/` from the `gh-pages` branch (update it with `git subtree push --prefix public origin gh-pages`), but Pages can't run the server or send that header, so the shop is turned off there. Use the Vercel address for Lagos Life. If you ever host the game somewhere other than the server, set `api` in `public/config.js` to the server's full URL.
 
 ## Submitting to Lagos Life
 
-1. **Get your keys** at https://lagoslife.app/developers/keys: game name *Hangman Pidgin*, HTTPS address = the Netlify URL, webhook = `<url>/api/vatar-webhook`, one-line description from `store/LISTING.md`.
-2. Put the test secrets in Netlify's environment variables (above) and redeploy.
+1. **Get your keys** at https://lagoslife.app/developers/keys: game name *Hangman Pidgin*, HTTPS address = the Vercel URL, webhook = `<url>/api/vatar-webhook`, one-line description from `store/LISTING.md`.
+2. Put the test secrets in Vercel's environment variables (above) and redeploy.
 3. In the dashboard, add the product `hints_5` (consumable, ₦100, "Hint Pack (5 hints)").
 4. Open your sandbox (`/developers/sandbox/<draft>`), play, and buy a Hint Pack with **Pay (test)**. That ticks: SDK init, test purchase, verified by your server, marked delivered. Click **Send test webhook** too.
 5. Add the icon, screenshots, category and descriptions from `store/`, agree to the Developer Agreement and **Submit for review**.
-6. After approval, swap in the live secrets (`vtr_live_…`, `vtr_whsec_live_…`) on Netlify and redeploy.
+6. After approval, swap in the live secrets (`vtr_live_…`, `vtr_whsec_live_…`) on Vercel and redeploy.
 
 ## Review checklist notes
 

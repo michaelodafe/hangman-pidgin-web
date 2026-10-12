@@ -1,11 +1,10 @@
 // POST /api/vatar-webhook  (purchase.paid, signed with the webhook signing secret)
 // A nudge, not proof: deliver() checks the purchase with Vatar's API before giving anything.
-import { deliver, signed } from "../lib/vatar.mjs"
+import { deliver, signed } from "../lib/vatar.js"
 
 const seen = new Set()
 
-export default async (req) => {
-  if (req.method !== "POST") return new Response(null, { status: 405 })
+export async function POST(req) {
   const raw = Buffer.from(await req.arrayBuffer())
   if (!signed(raw, req.headers.get("x-vatar-signature"))) return new Response(null, { status: 401 })
   let evt
@@ -23,5 +22,3 @@ export default async (req) => {
   seen.add(evt.id)
   return new Response(null, { status: 200 })
 }
-
-export const config = { path: "/api/vatar-webhook" }

@@ -1,10 +1,10 @@
 // POST /api/claim { session, purchaseId } → { hints, granted }
 // The game calls this after Vatar.purchase() resolves, from onPurchase, and for every Vatar.purchases() left undelivered.
-import { deliver, json, preflight, readBody, whoIs } from "../lib/vatar.mjs"
+import { deliver, json, preflight, readBody, whoIs } from "../lib/vatar.js"
 
-export default async (req) => {
-  if (req.method === "OPTIONS") return preflight()
-  if (req.method !== "POST") return json(405, { error: "method" })
+export const OPTIONS = preflight
+
+export async function POST(req) {
   const { session, purchaseId } = await readBody(req)
   const me = await whoIs(session)
   if (!me) return json(401, { error: "bad_session" })
@@ -12,5 +12,3 @@ export default async (req) => {
   if (r.http !== 200) return json(r.http, { error: r.error })
   return json(200, { hints: r.hints, granted: r.granted })
 }
-
-export const config = { path: "/api/claim" }

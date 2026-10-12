@@ -5,13 +5,14 @@
   "description": "Hangman with Naija Pidgin words — a Vatar Games (Lagos Life) web game",
   "type": "module",
   "scripts": {
-    "dev": "netlify dev",
-    "check": "node --check public/game.js && node --check netlify/lib/vatar.mjs && node --check netlify/functions/claim.mjs && node --check netlify/functions/hints.mjs && node --check netlify/functions/webhook.mjs"
-  },
-  "dependencies": {
-    "@netlify/blobs": "^11.1.4"
+    "dev": "python3 dev/serve.py",
+    "test": "node --test test/server.test.js",
+    "check": "node --check public/game.js && node --check lib/vatar.js && node --check api/claim.js && node --check api/hints/index.js && node --check api/hints/use.js && node --check api/vatar-webhook.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.39.0"
   }
 }
