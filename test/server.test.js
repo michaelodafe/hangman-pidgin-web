@@ -39,7 +39,7 @@ before(async () => {
   Object.assign(process.env, {
     VATAR_API_BASE: `http://localhost:${fake.address().port}`,
     VATAR_SECRET: SECRET,
-    VATAR_WEBHOOK_SECRET: WHSEC,
+    VATAR_WEBHOOK_SECRET: WHSEC + "\n", // pasted with a line break: still works
     HP_MEMORY_STORE: "1",
   })
   claim = (await import("../api/claim.js")).POST
