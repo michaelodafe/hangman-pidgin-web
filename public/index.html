@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+<meta name="theme-color" content="#3b1690" />
+<meta name="description" content="Hangman with Naija Pidgin words. Guess di word before di man hang!" />
+<title>Hangman Pidgin</title>
+<link rel="icon" href="icon-192.png" />
+<link rel="preload" href="fonts/PatrickHand-Regular.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="style.css" />
+<script src="https://lagoslife.app/sdk/vatar-games-v1.js"></script>
+<script src="config.js"></script>
+<script src="words.js"></script>
+</head>
+<body>
+<div id="app">
+
+  <!-- ───────── Home ───────── -->
+  <section id="home" class="screen active" aria-label="Home">
+    <div class="home-top">
+      <div id="hello" class="hello">Loading…</div>
+      <button class="icon-btn" id="soundHome" aria-label="Sound on or off"><span class="snd">🔊</span></button>
+    </div>
+    <h1 class="title">HANGMAN<span>PIDGIN</span></h1>
+    <p class="tag">Guess di Pidgin word before di man hang!</p>
+
+    <svg class="home-art" viewBox="0 0 300 260" aria-hidden="true">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#6c7bd8" /><stop offset="1" stop-color="#8b6fd6" />
+        </linearGradient>
+        <clipPath id="disc"><circle cx="150" cy="128" r="112" /></clipPath>
+      </defs>
+      <circle cx="150" cy="128" r="112" fill="url(#sky)" />
+      <g clip-path="url(#disc)">
+        <!-- Lagos skyline -->
+        <g fill="#5a4bb8" opacity=".9">
+          <rect x="34" y="120" width="22" height="90" /><rect x="58" y="96" width="18" height="114" />
+          <rect x="78" y="134" width="26" height="76" /><rect x="196" y="104" width="20" height="106" />
+          <rect x="218" y="82" width="16" height="128" /><rect x="236" y="126" width="30" height="84" />
+          <path d="M226 82 l0 -14 l-4 0 l4 -10 l4 10 l-4 0z" />
+        </g>
+        <rect x="0" y="196" width="300" height="70" fill="#9a3b10" />
+        <rect x="0" y="192" width="300" height="8" fill="#c35a1c" />
+        <!-- danfo -->
+        <g transform="translate(186 172) scale(.82)">
+          <rect x="0" y="0" width="72" height="30" rx="7" fill="#ffc72c" stroke="#3a2200" stroke-width="2.5" />
+          <rect x="6" y="5" width="14" height="10" rx="2" fill="#bfe3ff" /><rect x="24" y="5" width="14" height="10" rx="2" fill="#bfe3ff" />
+          <rect x="42" y="5" width="14" height="10" rx="2" fill="#bfe3ff" /><rect x="60" y="5" width="8" height="12" rx="2" fill="#bfe3ff" />
+          <rect x="0" y="19" width="72" height="4" fill="#1d1d1d" />
+          <circle cx="16" cy="31" r="6" fill="#1d1d1d" /><circle cx="56" cy="31" r="6" fill="#1d1d1d" />
+        </g>
+      </g>
+      <!-- gallows -->
+      <g transform="translate(28 0)">
+      <g stroke="#3a1500" stroke-width="3" stroke-linejoin="round">
+        <rect x="62" y="44" width="10" height="156" fill="#e58a2a" />
+        <rect x="52" y="38" width="104" height="12" fill="#e58a2a" />
+        <path d="M72 76 L100 50 L110 50 L72 88z" fill="#f2b63c" />
+        <rect x="40" y="196" width="60" height="10" fill="#e58a2a" />
+      </g>
+      <path d="M140 50 v26" stroke="#f2c14e" stroke-width="4" stroke-dasharray="3 2" />
+      <circle cx="140" cy="86" r="11" fill="none" stroke="#f2c14e" stroke-width="4" />
+      </g>
+    </svg>
+
+    <div class="menu">
+      <button class="btn primary" id="startBtn">Start</button>
+      <button class="btn" id="boardBtn">🏆 Leaderboard</button>
+      <button class="btn ghost" id="howBtn">How to play</button>
+    </div>
+    <div class="home-foot" id="homeFoot"></div>
+  </section>
+
+  <!-- ───────── Game ───────── -->
+  <section id="game" class="screen" aria-label="Game">
+    <header class="hud">
+      <button class="icon-btn" id="homeBtn" aria-label="Back to home">⌂</button>
+      <div class="lives" aria-label="Lives"><span class="heart">❤</span><b id="lives">5</b></div>
+      <div class="score"><small>Score</small><b id="score">0</b></div>
+      <button class="icon-btn hint-btn" id="hintBtn" aria-label="Use a hint">💡<span class="badge" id="hintBadge">1</span></button>
+      <button class="icon-btn" id="soundGame" aria-label="Sound on or off"><span class="snd">🔊</span></button>
+    </header>
+
+    <div class="clue"><span id="clue">Slang</span><span class="dot">·</span><span id="len">5 letters</span></div>
+
+    <div class="stage">
+      <svg id="man" viewBox="0 0 200 200" aria-hidden="true">
+        <g class="gallows">
+          <path d="M30 188 H150" /><path d="M60 188 V18 H130 V40" /><path d="M60 50 L90 18" />
+        </g>
+        <g class="parts">
+          <circle class="part p1" cx="130" cy="58" r="17" pathLength="1" />
+          <path class="part p2" d="M130 75 V128" pathLength="1" />
+          <path class="part p3" d="M130 88 L106 112" pathLength="1" />
+          <path class="part p4" d="M130 88 L154 112" pathLength="1" />
+          <path class="part p5" d="M130 128 L110 162" pathLength="1" />
+          <path class="part p6" d="M130 128 L150 162" pathLength="1" />
+          <g class="face dead"><path d="M121 51 l7 7 M128 51 l-7 7 M132 51 l7 7 M139 51 l-7 7" /><path d="M123 67 q7 -5 14 0" /></g>
+          <g class="face happy"><circle cx="124" cy="54" r="1.8" /><circle cx="136" cy="54" r="1.8" /><path d="M122 62 q8 7 16 0" /></g>
+        </g>
+      </svg>
+      <div class="misses" id="misses" aria-label="Wrong guesses"></div>
+    </div>
+
+    <div class="word" id="word" aria-live="polite"></div>
+    <div class="status" id="status">Pick a letter</div>
+
+    <div class="keys" id="keys" role="group" aria-label="Letters"></div>
+  </section>
+
+  <!-- ───────── Overlays ───────── -->
+  <div class="overlay" id="roundOv" hidden>
+    <div class="card">
+      <div class="card-emoji" id="roundEmoji">🎉</div>
+      <h2 id="roundTitle">Correct!</h2>
+      <div class="reveal" id="roundWord">WAHALA</div>
+      <div class="meaning"><small id="roundCat">Slang</small><span id="roundMeaning">Trouble</span></div>
+      <div class="points" id="roundPoints">+16</div>
+      <button class="btn primary" id="nextBtn">Next word →</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="overOv" hidden>
+    <div class="card">
+      <div class="card-emoji">💀</div>
+      <h2>Game don end!</h2>
+      <p class="big">Your score na <b id="finalScore">0</b></p>
+      <p class="sub" id="finalStats">5 words solved</p>
+      <p class="sub" id="finalBest"></p>
+      <div class="row">
+        <button class="btn" id="overHome">⌂ Home</button>
+        <button class="btn" id="overBoard">🏆 Board</button>
+      </div>
+      <button class="btn primary" id="againBtn">Play again</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="boardOv" hidden>
+    <div class="card tall">
+      <h2>🏆 Leaderboard</h2>
+      <div id="boardBody" class="board">Loading…</div>
+      <button class="btn primary" data-close>Close</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="shopOv" hidden>
+    <div class="card">
+      <div class="card-emoji">💡</div>
+      <h2>Hint pack</h2>
+      <p class="sub">Each hint opens one letter for you. You get one free hint every word — a pack gives you <b id="shopCount">5</b> more to use any time.</p>
+      <p class="sub">You have <b id="shopHave">0</b> extra hints.</p>
+      <button class="btn primary" id="buyBtn">Get 5 hints · ₦100</button>
+      <p class="sub small" id="shopNote"></p>
+      <button class="btn ghost" data-close>Not now</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="howOv" hidden>
+    <div class="card tall">
+      <h2>How to play</h2>
+      <ul class="how">
+        <li>Guess di Pidgin word one letter at a time. The clue tells you if na <b>Slang</b>, <b>Food</b>, <b>People</b>, <b>Lagos</b> or <b>Things</b>.</li>
+        <li>Six wrong letters and di man hang — you lose one ❤. You get <b>5 lives</b>.</li>
+        <li>Each word you solve gives <b>10 points</b> plus <b>2 for every wrong guess you had left</b>.</li>
+        <li>Stuck? Tap 💡: one free hint every word.</li>
+        <li>After every word you learn wetin e mean. Na so we dey learn!</li>
+      </ul>
+      <button class="btn primary" data-close>Oya, make we go!</button>
+    </div>
+  </div>
+
+  <div class="overlay pause" id="pauseOv" hidden>
+    <div class="card"><div class="card-emoji">⏸</div><h2>Paused</h2><p class="sub">We go wait for you.</p></div>
+  </div>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+</div>
+<script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "hangman-pidgin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hangman with Naija Pidgin words — a Vatar Games (Lagos Life) web game",
+  "type": "module",
+  "scripts": {
+    "dev": "netlify dev",
+    "check": "node --check public/game.js && node --check netlify/lib/vatar.mjs && node --check netlify/functions/claim.mjs && node --check netlify/functions/hints.mjs && node --check netlify/functions/webhook.mjs"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^11.1.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

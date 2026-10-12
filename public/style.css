@@ -1,0 +1,175 @@
+@font-face { font-family: "PatrickHand"; src: url(fonts/PatrickHand-Regular.woff2) format("woff2"); font-display: swap }
+@font-face { font-family: "FiraMono"; src: url(fonts/FiraMono-Bold.woff2) format("woff2"); font-weight: 700; font-display: swap }
+
+:root {
+  --bg: #3b1690;
+  --bg2: #26095f;
+  --card: #2c1e68;
+  --key: #118aff;
+  --key-dark: #0a5fc0;
+  --yellow: #ffc72c;
+  --green: #00e676;
+  --red: #ff5370;
+  --ink: #fff;
+  --muted: #c9bdf2;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent }
+html, body { margin: 0; height: 100%; background: var(--bg2); color: var(--ink); overflow: hidden }
+body {
+  font: 20px/1.25 "PatrickHand", "Comic Sans MS", system-ui, sans-serif;
+  user-select: none; -webkit-user-select: none; touch-action: manipulation; overscroll-behavior: none;
+}
+button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation }
+button:disabled { cursor: default }
+[hidden] { display: none !important }
+
+#app {
+  position: relative; height: 100dvh; max-width: 520px; margin: 0 auto; overflow: hidden;
+  background: radial-gradient(120% 70% at 50% 0%, #5626b8 0%, var(--bg) 45%, var(--bg2) 100%);
+}
+.screen { position: absolute; inset: 0; display: none; flex-direction: column;
+  padding: max(10px, env(safe-area-inset-top)) 12px max(10px, env(safe-area-inset-bottom)) }
+.screen.active { display: flex }
+
+/* ── buttons ── */
+.btn {
+  display: block; width: 100%; min-height: 52px; padding: 10px 20px; border: 0; border-radius: 14px;
+  background: rgba(255,255,255,.12); font-size: 24px; letter-spacing: .5px;
+  box-shadow: 0 4px 0 rgba(0,0,0,.25); transition: transform .08s, box-shadow .08s;
+}
+.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.25) }
+.btn.primary { background: var(--key); box-shadow: 0 4px 0 var(--key-dark) }
+.btn.primary:active { box-shadow: 0 1px 0 var(--key-dark) }
+.btn.ghost { background: transparent; box-shadow: none; color: var(--muted); min-height: 44px }
+.btn:disabled { opacity: .5; transform: none }
+.icon-btn {
+  width: 44px; height: 44px; flex: 0 0 44px; border: 0; border-radius: 12px; background: rgba(255,255,255,.1);
+  font-size: 22px; display: grid; place-items: center; position: relative; line-height: 1;
+}
+.icon-btn:active { background: rgba(255,255,255,.2) }
+
+/* ── home ── */
+#home { align-items: center; text-align: center; gap: 4px }
+.home-top { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px }
+.hello { font-size: 20px; color: var(--muted); text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.title { margin: 2px 0 0; font-weight: 400; font-size: clamp(40px, 12vw, 56px); line-height: .95; letter-spacing: 3px; text-shadow: 0 3px 0 rgba(0,0,0,.25) }
+.title span { display: block; color: var(--yellow); font-size: .72em; letter-spacing: 8px }
+.tag { margin: 6px 0 0; color: var(--muted); font-size: 19px }
+.home-art { width: min(78vw, 300px); max-height: 40dvh; margin: 6px 0; flex: 1 1 auto; min-height: 120px }
+.menu { width: min(100%, 320px); display: flex; flex-direction: column; gap: 12px; margin-top: auto }
+.home-foot { min-height: 22px; font-size: 16px; color: var(--muted); margin-top: 6px }
+
+/* ── game HUD ── */
+.hud { display: flex; align-items: center; gap: 6px }
+.lives { display: flex; align-items: center; gap: 4px; padding: 0 8px; height: 44px; border-radius: 12px; background: rgba(255,255,255,.1) }
+.heart { color: var(--red); font-size: 22px }
+.lives b { font-size: 24px; min-width: 14px; text-align: center }
+.score { flex: 1; text-align: center; line-height: 1 }
+.score small { display: block; font-size: 14px; color: var(--muted) }
+.score b { font-size: 30px; font-weight: 400 }
+.score b.bump { animation: bump .4s }
+.badge {
+  position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px;
+  background: var(--yellow); color: #2a1500; font-size: 14px; line-height: 20px; font-weight: 700;
+}
+.hint-btn:disabled { opacity: .45 }
+.hint-btn.empty .badge { background: #8f86b8 }
+
+.clue { margin: 8px auto 0; padding: 4px 14px; border-radius: 99px; background: rgba(0,0,0,.25); font-size: 18px; color: var(--yellow) }
+.clue .dot { margin: 0 6px; color: var(--muted) }
+#len { color: var(--muted) }
+
+/* ── gallows ── */
+.stage { flex: 1 1 auto; min-height: 110px; position: relative; display: flex; align-items: center; justify-content: center }
+#man { height: 100%; max-height: 260px; width: auto; max-width: 100%; overflow: visible }
+#man path, #man circle { fill: none; stroke: #fff; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round }
+#man .part { stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0; transition: stroke-dashoffset .35s ease-out, opacity .1s }
+#man .part.on { stroke-dashoffset: 0; opacity: 1 }
+#man .face path, #man .face circle { stroke-width: 3 }
+#man .face circle { fill: #fff }
+#man .face { opacity: 0; transition: opacity .3s }
+#man.lost .face.dead, #man.won .face.happy { opacity: 1 }
+#man.lost .part { stroke: var(--red) }
+#man.lost .parts { animation: sway 1.6s ease-in-out infinite; transform-origin: 130px 40px }
+#man.shake { animation: shake .3s }
+.misses { position: absolute; right: 2px; bottom: 6px; display: flex; flex-direction: column; gap: 4px }
+.misses i { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.18) }
+.misses i.x { background: var(--red) }
+
+/* ── word ── */
+.word { display: flex; justify-content: center; flex-wrap: nowrap; gap: var(--gap, 6px); margin: 6px 0 2px; min-height: 54px }
+.tile {
+  width: var(--tw, 34px); height: calc(var(--tw, 34px) * 1.3); max-height: 54px; display: grid; place-items: center;
+  font: 700 calc(var(--tw, 34px) * .78) "FiraMono", ui-monospace, monospace; text-transform: uppercase;
+  border-bottom: 4px solid #fff;
+}
+.tile.show { animation: pop .3s }
+.tile.missed { color: var(--red) }
+.tile.hinted { color: var(--yellow) }
+.status { text-align: center; min-height: 26px; font-size: 19px; color: var(--muted) }
+.status.good { color: var(--green) }
+.status.bad { color: var(--red) }
+
+/* ── keyboard ── */
+.keys { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; padding: 6px 0 2px }
+.key {
+  height: clamp(42px, 6.6dvh, 56px); border: 0; border-radius: 10px; background: var(--key); box-shadow: 0 3px 0 var(--key-dark);
+  font-size: clamp(22px, 6.4vw, 28px); text-transform: uppercase; padding: 0;
+}
+.key:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--key-dark) }
+.key.hit { background: var(--green); color: #00361c; box-shadow: none }
+.key.miss { background: rgba(255,255,255,.08); color: rgba(255,255,255,.3); box-shadow: none }
+.key:nth-child(22) { grid-column-start: 2 }
+
+/* ── overlays ── */
+.overlay {
+  position: absolute; inset: 0; z-index: 10; display: grid; place-items: center; padding: 16px;
+  background: rgba(14, 3, 40, .72); animation: fade .2s;
+}
+.card {
+  width: min(100%, 360px); max-height: 100%; overflow: auto; padding: 22px 18px 16px; border-radius: 20px; text-align: center;
+  background: var(--card); box-shadow: 0 20px 50px rgba(0,0,0,.45); display: flex; flex-direction: column; gap: 10px; animation: grow .25s;
+}
+.card h2 { margin: 0; font-weight: 400; font-size: 32px }
+.card-emoji { font-size: 44px; line-height: 1 }
+.reveal { font: 700 clamp(26px, 9vw, 38px) "FiraMono", monospace; letter-spacing: 4px; color: var(--green); text-transform: uppercase; word-break: break-all }
+#roundOv.lost .reveal { color: #ffd0d8 }
+#roundOv.lost h2 { color: var(--red) }
+.meaning { background: rgba(0,0,0,.22); border-radius: 12px; padding: 10px 12px; font-size: 20px }
+.meaning small { display: block; color: var(--yellow); font-size: 15px; letter-spacing: 1px; text-transform: uppercase }
+.points { font-size: 26px; color: var(--yellow) }
+.big { margin: 0; font-size: 26px } .big b { color: var(--yellow); font-size: 34px; font-weight: 400 }
+.sub { margin: 0; color: var(--muted); font-size: 18px }
+.sub.small { font-size: 15px; min-height: 18px }
+.row { display: flex; gap: 10px } .row .btn { font-size: 20px }
+.card.tall { max-height: min(100%, 640px) }
+.how { text-align: left; margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 19px }
+.how b { color: var(--yellow); font-weight: 400 }
+.board { display: flex; flex-direction: column; gap: 4px; text-align: left; min-height: 80px; overflow: auto; font-size: 19px }
+.board .r { display: flex; gap: 10px; padding: 6px 10px; border-radius: 10px; background: rgba(255,255,255,.06) }
+.board .r.me { background: rgba(255,199,44,.18) }
+.board .r span:first-child { width: 34px; color: var(--muted) }
+.board .r span:nth-child(2) { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.board .note { color: var(--muted); text-align: center; padding: 8px }
+.overlay.pause { z-index: 20 }
+
+.toast {
+  position: absolute; left: 50%; bottom: 22px; z-index: 30; transform: translateX(-50%); max-width: calc(100% - 32px);
+  padding: 10px 18px; border-radius: 14px; background: #111; color: #fff; font-size: 18px; text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,.4); animation: rise .25s;
+}
+
+@keyframes pop { 0% { transform: scale(.4) } 70% { transform: scale(1.15) } 100% { transform: scale(1) } }
+@keyframes bump { 50% { transform: scale(1.35); color: var(--yellow) } }
+@keyframes shake { 25% { transform: translateX(-6px) } 75% { transform: translateX(6px) } }
+@keyframes sway { 50% { transform: rotate(4deg) } }
+@keyframes fade { from { opacity: 0 } }
+@keyframes grow { from { transform: scale(.85); opacity: 0 } }
+@keyframes rise { from { transform: translate(-50%, 12px); opacity: 0 } }
+
+@media (max-height: 640px) {
+  .title { font-size: 38px } .tag { font-size: 16px } .btn { min-height: 46px; font-size: 21px } .menu { gap: 8px }
+  .key { height: 40px }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important } }
