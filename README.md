@@ -3,6 +3,7 @@
 Hangman with Naija Pidgin words, rebuilt for the web as a [Vatar Games](https://lagoslife.app/developers/docs) game for **Lagos Life**.
 It's a remake of the original Flutter app ([michaelodafe/hangman_pidgin](https://github.com/michaelodafe/hangman_pidgin)).
 
+- 267 Pidgin words with clue categories and meanings (`public/words.js`): the original app's list, extra Lagos words, and 117 words from the Sabi Flow / Pidgin Whisper language-model corpus (each seen 40+ times there).
 - Plain HTML/CSS/JS, no build step. Phone-first (375 × 812, touch), works offline from the SDK as a guest.
 - Vatar SDK: player name, leaderboard (`submitScore` / `leaderboard`), `onPause` / `onResume`, and one product, a **Hint Pack** (`hints_5`).
 - A small server (Vercel Functions) checks every purchase with Vatar's API, gives the hints once per purchase, marks it delivered, and keeps each player's hint balance (Upstash Redis).

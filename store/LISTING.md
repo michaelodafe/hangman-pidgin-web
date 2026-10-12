@@ -5,7 +5,7 @@
 **Category:** Word / Puzzle
 
 **Short description (max 120 chars):**
-Guess di Naija Pidgin word before di man hang! 150 words of slang, food and Lagos life — learn wetin each one mean.
+Guess di Naija Pidgin word before di man hang! 260+ words of slang, food and Lagos life — learn wetin each one mean.
 
 **Long description:**
 Hangman Pidgin na the classic hangman game, but every word na Naija Pidgin and Lagos slang — from *wahala* and *japa* to *danfo*, *puffpuff* and *owambe*.
